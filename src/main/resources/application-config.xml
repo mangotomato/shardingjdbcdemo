@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:sharding="http://shardingsphere.io/schema/shardingsphere/sharding"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://shardingsphere.io/schema/shardingsphere/sharding
+        http://shardingsphere.io/schema/shardingsphere/sharding/sharding.xsd">
+
+    <bean id="ds0" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="jdbc:mysql://localhost:3306/ds0" />
+        <property name="username" value="root" />
+        <property name="password" value="leejianhao" />
+    </bean>
+    <bean id="ds1" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="jdbc:mysql://localhost:3306/ds1" />
+        <property name="username" value="root" />
+        <property name="password" value="leejianhao" />
+    </bean>
+
+    <bean id="hintShardingAlgorithm" class="com.greencloud.shardingshere.CustomHintShardingAlgorithm"/>
+
+    <sharding:hint-strategy algorithm-ref="hintShardingAlgorithm" id="hintStrategy"/>
+
+
+    <sharding:data-source id="shardingDataSource">
+        <sharding:sharding-rule data-source-names="ds0,ds1" default-database-strategy-ref="hintStrategy">
+            <sharding:table-rules>
+                <sharding:table-rule logic-table="master_base" actual-data-nodes="ds${0..1}.master_base" database-strategy-ref="hintStrategy"/>
+            </sharding:table-rules>
+        </sharding:sharding-rule>
+        <sharding:props>
+            <prop key="sql.show">true</prop>
+        </sharding:props>
+    </sharding:data-source>
+
+</beans>
